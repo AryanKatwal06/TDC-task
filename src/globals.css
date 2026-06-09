@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Custom Properties ─────────────────────────────────── */
+:root {
+  --color-brand:   #dc9e4a;
+  --color-surface: #f5eddc;
+  --color-ink:     #111111;
+  --font-display:  'Playfair Display', Georgia, serif;
+  --font-body:     'Inter Tight', 'Inter', system-ui, sans-serif;
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Autofill Fix ───────────────────────────────────────────── */
+/* Prevents browser autofill from applying its own background color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 40px #fdfcf8 inset !important;
+  -webkit-text-fill-color: #1a0f05 !important;
+  caret-color: #1a0f05;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ─── Text Selection ─────────────────────────────────────────── */
+::selection {
+  background-color: rgba(220, 158, 74, 0.2); /* #dc9e4a with opacity */
+  color: #1a1814;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(220, 158, 74, 0.3);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 158, 74, 0.55);
+}
+
+/* ─── Focus Visible ──────────────────────────────────────────── */
+/* Remove default outline and use our own focus ring system */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid #dc9e4a;
+  outline-offset: 2px;
+}
+
+/* ─── Utilities ──────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance  { text-wrap: balance; }
+  .font-display  { font-family: var(--font-display); }
+  .font-body     { font-family: var(--font-body); }
+}
