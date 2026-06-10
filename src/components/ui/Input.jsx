@@ -1,17 +1,8 @@
 import { useState } from 'react'
 
-/**
- * Floating label input field.
- *
- * The label starts inside the input field (like a placeholder).
- * When the input is focused or has a value, the label floats
- * upward and scales down — creating a premium form feel.
- *
- * Also supports an optional right-side element (e.g. eye toggle for password).
- *
- * Accessibility: label is always present in the DOM (not replaced by placeholder),
- * ensuring screen readers always have context for the field.
- */
+// Floating label input field.
+// Accessibility: label is always present in the DOM (not replaced by placeholder),
+// ensuring screen readers always have context for the field.
 export default function Input({
   id,
   label,
@@ -68,6 +59,7 @@ export default function Input({
         value={value}
         autoFocus={autoFocus}
         autoComplete={autoComplete}
+        // aria-invalid and aria-describedby link the input to the error message for screen readers.
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${id}-error` : undefined}
         onChange={(e) => onChange(e.target.value)}

@@ -359,3 +359,44 @@ In future phases, the `fetchPoolProfiles()` function in `firebase/firestore.js` 
 - **Client-Side Search:** Filtering the dashboard by text or status executes purely in memory via React `useMemo` hooks. This ensures zero latency and zero database cost when a matchmaker is rapidly sorting through their roster.
 
 ---
+
+## Tuning the Algorithm
+
+Everything that controls matching behavior lives in `src/engine/constants.js`:
+
+- `WEIGHTS` — dimension weights by gender
+- `TIERS` — score thresholds for Exceptional / Strong / Good / Fair / Low
+- `RELIGION_COMPAT` — the compatibility matrix between religion pairs
+- `EDUCATION_TIERS` — which colleges are in which tier
+- `INCOME_BANDS` — the income bracket definitions
+
+Change a weight, run `npm run test`, check that `engine.test.js` still passes,
+then manually verify a few matches look right.
+
+---
+
+## Running Tests
+
+```bash
+npm run test            # single run
+npm run test:watch      # watch mode during development
+npm run test:coverage   # with coverage report
+```
+
+The test suite covers auth flows, store operations, Firestore utilities,
+routing guards, the dashboard, the login form, and the matching engine.
+The engine tests verify that ideal profiles score higher than poor ones,
+that tiers classify correctly, and that explanations return the right shapes.
+
+---
+
+## Assumptions
+
+- Internal tool only — no self-registration, no client-facing interface
+- Client data is Indian in context: fields like religion, caste, manglik status,
+  and income in lakhs are standard on platforms like BharatMatrimony and Shaadi.com
+- The 120-profile pool is simulated. In production this would query the full database.
+- The algorithm reflects observed patterns in Indian matrimonial data, not universal values.
+  Weights can and should be adjusted as TDC learns more about what predicts good matches.
+- "AI" here means deterministic algorithms with explainable outputs, not language models.
+  This was a deliberate choice — matchmakers should understand and trust their tools.

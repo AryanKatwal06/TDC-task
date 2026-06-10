@@ -1,21 +1,12 @@
 import { create } from 'zustand'
 
-/**
- * Stores computed match results for the currently-viewed client.
- *
- * matches:   Array of match result objects from the engine.
- *            Recomputed each time ClientDetailPage loads a new client.
- *
- * computing: True while the engine is running. The engine is synchronous
- *            and fast (<10ms for 120 profiles), but we show a brief
- *            loading state to avoid jarring instant content appearance.
- *
- * visibleCount: How many match cards are shown (default 15, "Show More" adds 15).
- */
+
 const useMatchStore = create((set, get) => ({
   matches:       [],
+  // We use setTimeout(0) to set this to true before running the engine so the browser paints the loading state.
   computing:     false,
   error:         null,
+  // We paginate client-side for performance and better UX.
   visibleCount:  15,
 
   setMatches:   (matches) => set({ matches, computing: false, error: null }),
@@ -25,11 +16,7 @@ const useMatchStore = create((set, get) => ({
   showMore: () => set((s) => ({ visibleCount: s.visibleCount + 15 })),
   resetVisible: () => set({ visibleCount: 15 }),
 
-  /**
-   * Optimistically marks a match as sent in the local array.
-   * Called immediately when the matchmaker confirms a Send Match action.
-   * This makes the "Sent ✓" state appear instantly without waiting for Firestore.
-   */
+  // Optimistic update for immediate feedback without waiting for Firestore.
   markSentLocally: (profileId) => {
     set((state) => ({
       matches: state.matches.map((m) =>

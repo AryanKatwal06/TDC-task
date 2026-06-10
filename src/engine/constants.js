@@ -3,18 +3,10 @@
  * Centralised here so tuning the engine means editing ONE file.
  */
 
-/**
- * Dimension weights by client gender.
- * Weights must sum to 1.0 for each gender.
- *
- * MALE weights: slightly favour age and height differential (traditional
- *   Indian matrimonial norms) while still weighting values and religion
- *   heavily (where matches break down most often in practice).
- *
- * FEMALE weights: favour income/profession and values more strongly —
- *   reflecting research on what Indian women prioritise in matrimonial
- *   contexts (financial stability, shared values, relocation flexibility).
- */
+// Income weight is deliberately higher for female clients.
+// This reflects observed preference patterns on BharatMatrimony and Shaadi.com
+// where female profiles rank partner income as a top-3 criteria significantly
+// more often than male profiles do. The weights model real behavior.
 export const WEIGHTS = {
   MALE: {
     age:          0.15,
@@ -42,10 +34,7 @@ export const WEIGHTS = {
   },
 }
 
-/**
- * Score thresholds for match tier classification.
- * A match's weighted total score maps to one of these tiers.
- */
+// Tiers translate raw 0-100 scores into human-meaningful match categories.
 export const TIERS = {
   EXCEPTIONAL: { min: 80, label: 'Exceptional Match', colorClass: 'jade'    },
   STRONG:      { min: 65, label: 'Strong Match',       colorClass: 'brand'   },
@@ -54,14 +43,7 @@ export const TIERS = {
   LOW:         { min: 0,  label: 'Low Compatibility',  colorClass: 'crimson' },
 }
 
-/**
- * Religion compatibility scores (0–100).
- * Same religion = 100. Closely compatible = 65–80. Open but different = 40.
- * Traditionally incompatible combinations = 15.
- *
- * These reflect common attitudes seen on BharatMatrimony and Shaadi.com —
- * not value judgements, but realistic matching signal.
- */
+// This matrix reflects observed patterns on Indian matrimonial platforms, not a values judgment.
 export const RELIGION_COMPAT = {
   'Hindu-Hindu':       100,
   'Muslim-Muslim':     100,
@@ -84,10 +66,7 @@ export const RELIGION_COMPAT = {
   'Muslim-Sikh':        20,
 }
 
-/**
- * Education tier lookup.
- * Used to compute education compatibility between client and profile.
- */
+// Based on standard Indian tech and MBA recruiting tier classifications.
 export const EDUCATION_TIERS = {
   // Tier 1 — Elite institutions
   'IIT Bombay': 1, 'IIT Delhi': 1, 'IIT Madras': 1, 'IIT Kharagpur': 1,
@@ -113,10 +92,7 @@ export function getEducationTier(college) {
   return 3
 }
 
-/**
- * Income bands in lakhs INR.
- * Used to compute band distance for income compatibility scoring.
- */
+
 export const INCOME_BANDS = [
   { id: 0, min: 0,   max: 4   },
   { id: 1, min: 4,   max: 8   },
@@ -134,10 +110,7 @@ export function getIncomeBand(lakh) {
   return 0
 }
 
-/**
- * Human-readable labels for each scoring dimension.
- * Used by the explainer to generate readable breakdown labels.
- */
+
 export const DIMENSION_LABELS = {
   age:          'Age Compatibility',
   height:       'Height Preference',

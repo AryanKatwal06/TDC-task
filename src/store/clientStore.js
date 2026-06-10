@@ -1,24 +1,6 @@
 import { create } from 'zustand'
 
-/**
- * Global store for client data.
- *
- * clients: array of all client documents assigned to the logged-in matchmaker.
- *          Loaded once on dashboard mount, cached for the session.
- *
- * selectedClientId: the Firestore document ID of the currently-viewed client.
- *                   Set when navigating to ClientDetailPage.
- *
- * loading: true while the initial Firestore fetch is in progress.
- *
- * error: string message if the fetch failed, null otherwise.
- *
- * updateClientLocally: performs an optimistic local update to a client in the
- *   array. Used for notes — we update the UI immediately so the matchmaker
- *   sees their note appear instantly, then the async Firestore write happens
- *   in the background. If the write fails the error is shown but the local
- *   state remains (good enough for an internal tool at this scale).
- */
+
 const useClientStore = create((set, get) => ({
   clients:          [],
   selectedClientId: null,
@@ -33,14 +15,9 @@ const useClientStore = create((set, get) => ({
 
   setSelectedClientId: (id) => set({ selectedClientId: id }),
 
-  /**
-   * Merges a partial update into one client in the local array.
-   * The merge is shallow on the top-level fields but deep on nested
-   * objects (notes array, sentMatches array).
-   *
-   * Example usage (adding a note optimistically):
-   *   updateClientLocally(clientId, { notes: [...existingNotes, newNote] })
-   */
+  // Optimistic update: we update the local store before the Firestore write completes.
+  // This makes UI actions (like adding notes) feel instant.
+  // If the background Firestore write fails, the local state remains.
   updateClientLocally: (clientId, partialUpdate) => {
     set((state) => ({
       clients: state.clients.map((c) =>
@@ -49,12 +26,8 @@ const useClientStore = create((set, get) => ({
     }))
   },
 
-  /**
-   * Returns the full client object for the currently selected client.
-   * Returns null if no client is selected or the array is empty.
-   * Defined as a getter on the store (not a selector hook) because it
-   * requires reading two pieces of state simultaneously.
-   */
+  // Defined as a getter (not a selector hook) because it requires reading
+  // two pieces of state simultaneously (clients + selectedClientId).
   getSelectedClient: () => {
     const { clients, selectedClientId } = get()
     return clients.find((c) => c.id === selectedClientId) ?? null

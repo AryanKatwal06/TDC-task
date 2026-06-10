@@ -7,10 +7,19 @@ import useClientStore from '@/store/clientStore'
 import useAuthStore   from '@/store/authStore'
 import useUiStore     from '@/store/uiStore'
 
-// Mock Firestore — DashboardPage triggers a fetch on mount
+// Mock Firestore
 vi.mock('@/firebase/firestore', () => ({
   fetchClientsForMatchmaker: vi.fn(),
 }))
+
+// Mock useClientsLoader to prevent it from overwriting state during UI tests
+vi.mock('@/hooks/useClients', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useClientsLoader: vi.fn(() => ({ retry: vi.fn() }))
+  }
+})
 
 vi.mock('@/firebase/auth', () => ({
   subscribeToAuthChanges: vi.fn(() => vi.fn()),
@@ -52,11 +61,9 @@ beforeEach(() => {
 
 describe('DashboardPage — loading state', () => {
   it('shows skeleton rows while fetching', () => {
-    fetchClientsForMatchmaker.mockImplementation(() => new Promise(() => {})) // never resolves
     useClientStore.setState({ loading: true })
-    renderDashboard()
-    // Skeleton rows are rendered — test by their aria role or class
-    const skeletons = document.querySelectorAll('.animate-pulse')
+    const { container } = renderDashboard()
+    const skeletons = container.querySelectorAll('.animate-pulse')
     expect(skeletons.length).toBeGreaterThan(0)
   })
 })
@@ -131,11 +138,9 @@ describe('DashboardPage — filter', () => {
 
 describe('DashboardPage — error state', () => {
   it('shows error message and retry button', async () => {
-    fetchClientsForMatchmaker.mockRejectedValue(new Error('Network error'))
+    useClientStore.setState({ error: 'Network error', loading: false, clients: [] })
     renderDashboard()
-    await waitFor(() => {
-      expect(screen.getByText(/couldn't load clients/i)).toBeInTheDocument()
-    })
+    expect(screen.getByText(/couldn't load clients/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
   })
 })

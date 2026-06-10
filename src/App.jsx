@@ -4,7 +4,6 @@ import ProtectedRoute      from '@/components/ProtectedRoute'
 import LoginPage           from '@/pages/LoginPage'
 import DashboardPage       from '@/pages/DashboardPage'
 import ClientDetailPage    from '@/pages/ClientDetailPage'
-import RegisterPage        from '@/pages/RegisterPage'
 import { ToastContainer }  from '@/components/ui/Toast'
 
 export default function App() {
@@ -14,7 +13,6 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
         <Route
           path="/dashboard"

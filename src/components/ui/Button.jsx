@@ -1,16 +1,6 @@
 import Spinner from './Spinner'
 
-/**
- * Unified button component with all variants used across the app.
- *
- * Variants:
- *   primary   — dark green pill with inner arrow (main CTAs)
- *   secondary — gold border, gold text (secondary actions)
- *   ghost     — no background or border (tertiary/cancel)
- *   danger    — crimson background (destructive actions)
- *
- * Sizes: sm, md, lg
- */
+// Strings are used instead of objects because Tailwind's purge needs static class strings.
 
 const ArrowIcon = () => (
   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-tdc-green-light ml-2 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
@@ -26,6 +16,7 @@ const BASE =
   'transition-all duration-200 select-none ' +
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ' +
   'focus-visible:outline-brand-500 disabled:opacity-50 disabled:cursor-not-allowed ' +
+  // active:scale-[0.98] makes clicks feel physical
   'active:scale-[0.98]'
 
 const VARIANTS = {

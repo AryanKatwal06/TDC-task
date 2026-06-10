@@ -13,17 +13,12 @@ import { fetchClientById, updateClientStatus } from '@/firebase/firestore'
 import { useMatchesForClient } from '@/hooks/useMatches'
 import useMatchStore from '@/store/matchStore'
 import MatchCard from '@/components/features/MatchCard'
-import EditClientModal from '@/components/features/EditClientModal'
-import { Pencil } from 'lucide-react'
 
 const selectClients      = (s) => s.clients
 const selectSetSelected  = (s) => s.setSelectedClientId
 const selectUpdateLocally = (s) => s.updateClientLocally
 
-/**
- * Formats heightCm into a human-readable string.
- * 178 → "5'10" / 178 cm"
- */
+
 function formatHeight(cm) {
   if (!cm) return null
   const totalInches = Math.round(cm / 2.54)
@@ -32,18 +27,13 @@ function formatHeight(cm) {
   return `${feet}'${inches}" / ${cm} cm`
 }
 
-/**
- * Formats an ISO date string to a readable date.
- * "1993-04-15" → "15 Apr 1993"
- */
+
 function formatDate(isoStr) {
   if (!isoStr) return null
   return new Date(isoStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-/**
- * Computes age from dob string.
- */
+
 function computeAge(dob) {
   if (!dob) return null
   const diff = Date.now() - new Date(dob).getTime()
@@ -55,7 +45,6 @@ export default function ClientDetailPage() {
   const navigate       = useNavigate()
   const clients        = useClientStore(selectClients)
   const setSelectedId  = useClientStore(selectSetSelected)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   // Try to find the client in the store first (avoids Firestore read if already loaded)
   const clientFromStore = clients.find((c) => c.id === clientId) ?? null
@@ -139,10 +128,6 @@ export default function ClientDetailPage() {
                 </select>
                 {client.personal.nriStatus && <Badge label="NRI" variant="violet" />}
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit Profile
-              </Button>
             </div>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'rgba(220,158,74,0.8)' }}>
               {age ? `${age} years` : ''}{age && client.personal.city ? ' · ' : ''}{client.personal.city}{client.personal.nriStatus ? ' (based abroad)' : ''}
@@ -297,7 +282,6 @@ export default function ClientDetailPage() {
 
         </div>
       </div>
-      <EditClientModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} client={client} />
     </AppShell>
   )
 }

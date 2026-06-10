@@ -4,14 +4,14 @@ import { CheckCircle2, AlertTriangle, Info } from 'lucide-react'
 export default function MatchExplanation({ matchResult }) {
   const { strengths, concerns, headline, breakdown } = matchResult
 
-  // Sort breakdown by weight (highest first) for the bar chart display
+  // We sort by weight, not raw score, so the matchmaker sees the most impactful dimensions at the top of the chart.
   const sortedDimensions = Object.entries(breakdown)
     .sort(([, a], [, b]) => b.weight - a.weight)
 
   return (
     <div className="mt-4 border-t border-surface-200 pt-4 animate-in fade-in slide-in-from-top-4 duration-300">
       
-      {/* Headline */}
+
       <div className="flex items-start gap-3 mb-6 bg-brand-50 p-4 rounded-lg border border-brand-100">
         <Info className="w-5 h-5 text-brand flex-shrink-0 mt-0.5" />
         <p className="text-sm font-medium text-brand-900 leading-relaxed">
@@ -21,7 +21,7 @@ export default function MatchExplanation({ matchResult }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        {/* Left Column: Strengths & Concerns */}
+
         <div className="space-y-6">
           <div>
             <h4 className="text-xs font-bold text-surface-400 uppercase tracking-wider mb-3">
@@ -54,14 +54,14 @@ export default function MatchExplanation({ matchResult }) {
           )}
         </div>
 
-        {/* Right Column: Dimension Breakdown Bars */}
+
         <div>
           <h4 className="text-xs font-bold text-surface-400 uppercase tracking-wider mb-3">
             Compatibility Breakdown
           </h4>
           <div className="space-y-3 bg-surface-50 p-4 rounded-lg border border-surface-200">
             {sortedDimensions.map(([key, data]) => {
-              // Color the bar based on the raw score for that dimension
+
               let barColor = 'bg-brand'
               if (data.score >= 80) barColor = 'bg-jade'
               else if (data.score < 50) barColor = 'bg-crimson'

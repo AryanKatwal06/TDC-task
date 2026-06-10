@@ -2,12 +2,12 @@ import React, { useEffect } from 'react'
 import { create } from 'zustand'
 import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 
-// Toast Store
 export const useToastStore = create((set) => ({
   toasts: [],
   addToast: (toast) => {
     const id = Date.now().toString()
     set((state) => ({ toasts: [...state.toasts, { id, ...toast }] }))
+    // 5000ms is a standard duration for non-critical reading.
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
     }, 5000)
@@ -15,11 +15,11 @@ export const useToastStore = create((set) => ({
   removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }))
 
-// Toast Provider Component (Rendered once in App.jsx)
 export function ToastContainer() {
   const { toasts, removeToast } = useToastStore()
 
   return (
+    // pointer-events-none on container + auto on items allows clicks to pass through empty space.
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={() => removeToast(toast.id)} />

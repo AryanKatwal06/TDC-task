@@ -1,15 +1,9 @@
 import { rankProfiles }                                from './ranker.js'
 import { generateStrengths, generateConcerns, generateHeadline } from './explainer.js'
 import { generateIntroText }                           from './introGenerator.js'
+import { classifyMatch }                               from './classifier.js'
 
-/**
- * Public API for the matchmaking engine.
- * This is the ONLY file that consumers outside src/engine/ should import from.
- *
- * Takes a client and the full pool, returns a ranked array of match results.
- * Each result contains the profile, score, tier, confidence, breakdown,
- * human-readable strengths/concerns, headline, intro text, and sent status.
- */
+// Public API for the matchmaking engine. This is the ONLY file consumers should import from.
 export function getMatchesForClient(client, pool, sentMatchIds = []) {
   const ranked = rankProfiles(client, pool)
 
@@ -25,6 +19,7 @@ export function getMatchesForClient(client, pool, sentMatchIds = []) {
       concerns,
       headline,
       introText,
+      classification: classifyMatch(match.score, match.confidence, match.breakdown),
       alreadySent: sentMatchIds.includes(match.profile.id),
     }
   })

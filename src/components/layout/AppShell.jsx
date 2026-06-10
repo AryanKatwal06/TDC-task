@@ -4,16 +4,7 @@ import useUiStore from '@/store/uiStore'
 const selectSidebarOpen  = (s) => s.sidebarOpen
 const selectSetSidebar   = (s) => s.setSidebarOpen
 
-/**
- * The persistent outer frame of every authenticated page.
- *
- * Layout:
- * - Desktop (lg+): sidebar fixed-left (240px) + main content fills remaining width
- * - Mobile: sidebar slides in as an overlay when sidebarOpen=true
- *
- * All authenticated pages render as children of AppShell.
- * AppShell does not fetch data — it is purely structural.
- */
+
 export default function AppShell({ children }) {
   const sidebarOpen  = useUiStore(selectSidebarOpen)
   const setSidebar   = useUiStore(selectSetSidebar)
@@ -21,7 +12,7 @@ export default function AppShell({ children }) {
   return (
     <div className="flex min-h-screen bg-tdc-dark">
 
-      {/* Mobile overlay backdrop */}
+      {/* Click handler is on the overlay so tapping outside the sidebar closes it. aria-hidden prevents screen readers from announcing this purely visual backdrop. */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 lg:hidden"
@@ -31,7 +22,7 @@ export default function AppShell({ children }) {
         />
       )}
 
-      {/* Sidebar — always visible desktop, slide-in mobile */}
+
       <aside
         className="fixed top-0 left-0 h-full z-30 transition-transform duration-300 lg:translate-x-0"
         style={{
@@ -46,7 +37,7 @@ export default function AppShell({ children }) {
         </div>
       </aside>
 
-      {/* Main content — offset by sidebar width on desktop */}
+      {/* Offset keeps the main content in sync with the 240px fixed sidebar width. */}
       <main
         className="flex-1 min-h-screen lg:ml-[240px] bg-tdc-dark"
       >

@@ -34,7 +34,7 @@ export default function Sidebar({ onClose }) {
       clearUser()
       navigate('/login', { replace: true })
     } catch {
-      // Sign out failure is non-critical — force navigate anyway
+      // We navigate even if sign-out fails — better UX to force logout than to leave the user stuck.
       navigate('/login', { replace: true })
     }
   }
@@ -99,6 +99,7 @@ export default function Sidebar({ onClose }) {
               }}
               onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(220,158,74,0.08)' }}
               onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
+              // Accessibility: screen readers announce which nav item is active
               aria-current={active ? 'page' : undefined}
             >
               {item.icon(active)}

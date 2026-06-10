@@ -18,7 +18,6 @@ const app = getApps().length === 0
 
 export const auth = getAuth(app)
 
-// Initialize Firestore with robust multi-tab caching for instant loads
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()

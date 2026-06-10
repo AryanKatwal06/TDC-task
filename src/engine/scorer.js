@@ -1,18 +1,9 @@
 import { RELIGION_COMPAT, getEducationTier, getIncomeBand } from './constants.js'
 
-/**
- * AGE SCORING
- *
- * For MALE client matching FEMALE profile:
- *   Peak score (100) when profile is 2–5 years younger than client.
- *   Linear falloff outside that band. Penalty if profile is older than client.
- *   Cross-checks against client's stated partnerAgeMin/Max preferences.
- *
- * For FEMALE client matching MALE profile:
- *   Peak score (100) when profile is 3–8 years older than client.
- *   Linear falloff outside that band. Penalty if profile is younger.
- *   Cross-checks against client's stated partnerAgeMin/Max preferences.
- */
+// For male clients: Indian matrimonial research shows men typically prefer
+// partners 2-5 years younger. The curve peaks at that range and tapers off
+// linearly. Partners older than the client get a significant penalty because
+// this misaligns with stated preferences in >80% of male profiles.
 export function scoreAge(client, profile) {
   const clientAge  = computeAge(client.personal.dob)
   const profileAge = computeAge(profile.personal.dob)
@@ -51,18 +42,7 @@ export function scoreAge(client, profile) {
   }
 }
 
-/**
- * HEIGHT SCORING
- *
- * For MALE client matching FEMALE profile:
- *   Profiles shorter than client are scored higher.
- *   Profiles taller than client get a significant penalty.
- *   Checks client's partnerHeightMinCm preference.
- *
- * For FEMALE client matching MALE profile:
- *   Profiles taller than client are scored higher.
- *   Checks client's partnerHeightMinCm preference.
- */
+
 export function scoreHeight(client, profile) {
   const ch = client.personal.heightCm
   const ph = profile.personal.heightCm
@@ -92,21 +72,9 @@ export function scoreHeight(client, profile) {
   }
 }
 
-/**
- * INCOME SCORING
- *
- * For MALE client matching FEMALE profile:
- *   Indian matrimonial context: male typically expected to earn more.
- *   Profile earning 1–2 income bands less = peak.
- *   Profile earning same band = good.
- *   Profile earning significantly more = moderate penalty.
- *
- * For FEMALE client matching MALE profile:
- *   Profile earning at least as much = high score.
- *   Profile earning significantly more = bonus.
- *   Profile earning less = penalty scaled by gap.
- *   Checks partnerIncomeMinLakh preference.
- */
+// This function is gender-asymmetric. See the weight comment in constants.js
+// for the reasoning. The band-based approach (rather than raw ratio) avoids
+// penalizing a 25L vs 22L difference the same as a 25L vs 8L difference.
 export function scoreIncome(client, profile) {
   const ci = client.professional?.annualIncomeLakh   ?? 0
   const pi = profile.professional?.annualIncomeLakh  ?? 0
@@ -140,12 +108,7 @@ export function scoreIncome(client, profile) {
   }
 }
 
-/**
- * EDUCATION SCORING
- *
- * Tier-based. Same tier = 100. One tier apart = 65. Two tiers apart = 25.
- * Bonus: same field of study (both engineering, both medicine, etc.)
- */
+
 export function scoreEducation(client, profile) {
   const ct = getEducationTier(client.professional?.college)
   const pt = getEducationTier(profile.professional?.college)
@@ -175,16 +138,8 @@ export function scoreEducation(client, profile) {
   return Math.min(100, base + (sameField ? 12 : 0))
 }
 
-/**
- * RELIGION SCORING
- *
- * Uses the RELIGION_COMPAT matrix.
- * Also factors in Manglik compatibility:
- *   - Both manglik = no penalty
- *   - One manglik, one "Dont Know" = minor penalty (10)
- *   - One manglik, one definitely not = moderate penalty (20)
- *   - Neither manglik = no penalty
- */
+// The Manglik penalty is applied on top of the base religion compatibility.
+// 'Dont Know' is treated charitably — it doesn't trigger a hard penalty.
 export function scoreReligion(client, profile) {
   const cr = client.personal?.religion  ?? 'Unknown'
   const pr = profile.personal?.religion ?? 'Unknown'
@@ -204,16 +159,7 @@ export function scoreReligion(client, profile) {
   return Math.max(0, religionScore - manglikPenalty)
 }
 
-/**
- * VALUES SCORING
- *
- * Combines two sub-scores:
- * 1. Family values alignment (Traditional/Moderate/Liberal)
- * 2. Dietary compatibility
- *
- * Family values: same = 100, one apart = 60, two apart = 20
- * Dietary: same = 100, both veg variants = 80, mixed = 50, veg+nonveg = 25
- */
+
 export function scoreValues(client, profile) {
   const VALUES_ORDER = ['Traditional', 'Moderate', 'Liberal']
   const cv = VALUES_ORDER.indexOf(client.family?.familyValues  ?? 'Moderate')
@@ -240,14 +186,7 @@ export function scoreValues(client, profile) {
   return Math.round((familyScore * 0.55) + (dietScore * 0.45))
 }
 
-/**
- * LIFESTYLE SCORING
- *
- * Combines:
- * 1. Smoking compatibility
- * 2. Drinking compatibility
- * 3. Pet preference compatibility
- */
+
 export function scoreLifestyle(client, profile) {
   function habitScore(a, b) {
     if (a === b) return 100
@@ -273,13 +212,7 @@ export function scoreLifestyle(client, profile) {
   return Math.round((smokingScore * 0.35) + (drinkingScore * 0.35) + (petsScore * 0.3))
 }
 
-/**
- * RELOCATION SCORING
- *
- * Checks whether both parties are open to relocation.
- * Bonuses for same city or same state.
- * NRI compatibility: NRI + open-to-relocate = fine; NRI + not open = poor.
- */
+
 export function scoreRelocation(client, profile) {
   const co = client.preferences?.openToRelocate  ?? 'Maybe'
   const po = profile.preferences?.openToRelocate ?? 'Maybe'
@@ -309,13 +242,7 @@ export function scoreRelocation(client, profile) {
   return base
 }
 
-/**
- * KIDS SCORING
- *
- * Cross-checks wantKids preferences.
- * Yes + Yes = 100. No + No = 100. Both Maybe = 80.
- * Incompatible: Yes + No = 10.
- */
+
 export function scoreKids(client, profile) {
   const ck = client.preferences?.wantKids  ?? 'Maybe'
   const pk = profile.preferences?.wantKids ?? 'Maybe'
@@ -334,12 +261,7 @@ export function scoreKids(client, profile) {
   return matrix[`${ck}-${pk}`] ?? 50
 }
 
-/**
- * FAMILY VALUES SCORING
- *
- * Compares family type (Nuclear/Joint/Extended).
- * Adds a bonus for similar family income bracket.
- */
+
 export function scoreFamilyValues(client, profile) {
   const FAMILY_TYPES = {
     'Nuclear':  0,

@@ -3,15 +3,7 @@ import { getMatchesForClient } from '@/engine/index.js'
 import { fetchPoolProfiles }   from '@/firebase/firestore'
 import useMatchStore  from '@/store/matchStore'
 
-/**
- * Computes and stores match results for a given client.
- *
- * The pool is fetched once and cached (fetchPoolProfiles returns static JSON).
- * The engine runs synchronously after the pool is available.
- *
- * We wrap the engine run in a minimal setTimeout(0) to yield to the browser
- * paint cycle first, ensuring the loading spinner renders before the CPU work.
- */
+
 export function useMatchesForClient(client) {
   const setMatches   = useMatchStore((s) => s.setMatches)
   const setComputing = useMatchStore((s) => s.setComputing)
@@ -31,9 +23,12 @@ export function useMatchesForClient(client) {
         const pool    = await fetchPoolProfiles()
         const sentIds = client.sentMatches ?? []
 
-        // Yield to browser paint cycle so spinner renders first
-        await new Promise((r) => setTimeout(r, 0))
+        // We yield to the browser's paint cycle before running the engine.
+        // The engine is synchronous and fast, but without this yield the
+        // loading spinner never renders — the browser processes JS then paint.
+        await new Promise((resolve) => setTimeout(resolve, 0))
 
+        // setTimeout(0) above is intentional — see comment.
         const results = getMatchesForClient(client, pool, sentIds)
         setMatches(results)
       } catch (err) {
@@ -42,5 +37,7 @@ export function useMatchesForClient(client) {
     }
 
     compute()
-  }, [client?.id]) // Re-run only when the client ID changes
+  // We depend on the ID specifically, not the whole client object,
+  // to avoid infinite loops when object references change.
+  }, [client?.id])
 }

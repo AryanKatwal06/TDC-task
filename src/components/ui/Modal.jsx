@@ -1,13 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 
-/**
- * Reusable full-screen modal overlay with focus trapping.
- */
+
 export default function Modal({ title, isOpen, onClose, children, hideCloseButton = false }) {
   const modalRef = useRef(null)
 
-  // Escape key to close
+  // Accessibility/UX standard: allow closing via Escape key.
   useEffect(() => {
     if (!isOpen) return
     const handleKeyDown = (e) => {
@@ -31,6 +29,7 @@ export default function Modal({ title, isOpen, onClose, children, hideCloseButto
       <div
         ref={modalRef}
         role="dialog"
+        // aria-modal="true" tells screen readers to trap focus inside the dialog.
         aria-modal="true"
         aria-labelledby="modal-title"
         className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"

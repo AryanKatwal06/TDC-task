@@ -1,14 +1,7 @@
 import React from 'react'
 
-/**
- * Animated SVG progress ring.
- * Color scales based on score:
- * < 50: crimson (low)
- * 50–64: amber (fair)
- * 65–79: brand (strong)
- * 80+: jade (exceptional)
- */
 export default function ScoreRing({ score, size = 64, strokeWidth = 6 }) {
+  // Standard SVG stroke-dash trick for animating circle progress.
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (score / 100) * circumference

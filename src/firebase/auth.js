@@ -7,9 +7,6 @@ import {
 } from 'firebase/auth'
 import { auth } from './config'
 
-/**
- * Creates a new matchmaker account and sets their display name.
- */
 export async function signUp(email, password, displayName) {
   const credential = await createUserWithEmailAndPassword(auth, email, password)
   if (displayName) {
@@ -18,26 +15,17 @@ export async function signUp(email, password, displayName) {
   return credential.user
 }
 
-/**
- * Signs in a matchmaker with email and password.
- * Throws a Firebase AuthError on failure — callers handle error display.
- */
+// No try/catch here — callers handle the Firebase AuthError to show UI feedback.
 export async function signIn(email, password) {
   const credential = await signInWithEmailAndPassword(auth, email, password)
   return credential.user
 }
 
-/**
- * Signs out the current matchmaker and clears the Firebase session.
- */
 export async function signOut() {
   await firebaseSignOut(auth)
 }
 
-/**
- * Subscribes to Firebase auth state changes.
- * Returns the unsubscribe function — must be called on component unmount.
- */
+// Returns the unsubscribe function — must be called on unmount, otherwise listeners stack up.
 export function subscribeToAuthChanges(callback) {
   return onAuthStateChanged(auth, callback)
 }

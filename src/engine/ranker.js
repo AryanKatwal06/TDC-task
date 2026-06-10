@@ -1,10 +1,7 @@
 import { WEIGHTS, TIERS, DIMENSION_LABELS } from './constants.js'
 import * as scorer from './scorer.js'
 
-/**
- * Computes the full weighted compatibility score between a client and a pool profile.
- * Returns the score, tier, confidence, and per-dimension breakdown.
- */
+// The primary composition point for all dimension scores.
 export function computeMatchScore(client, profile) {
   const gender  = (client.personal.gender ?? 'Male').toUpperCase()
   const weights = WEIGHTS[gender] ?? WEIGHTS.MALE
@@ -43,11 +40,9 @@ export function computeMatchScore(client, profile) {
   return { score: finalScore, confidence, tier, breakdown }
 }
 
-/**
- * Confidence is a measure of how reliable the score is.
- * High confidence = many strong signals, complete data.
- * Low confidence = missing fields, borderline scores, or very sparse preferences.
- */
+// Confidence requires completeness, signal consistency, and lack of contradictions.
+// Contradictory signals (many extreme highs mixed with extreme lows) reduce confidence
+// because the matchmaker needs to manually verify the deal-breakers.
 function computeConfidence(client, profile, dimensions) {
   const scores    = Object.values(dimensions)
   const highScores = scores.filter((s) => s >= 70).length
@@ -69,9 +64,7 @@ function computeConfidence(client, profile, dimensions) {
   return Math.round(rawConfidence)
 }
 
-/**
- * Maps a numeric score to a tier label.
- */
+
 export function classifyTier(score) {
   if (score >= 80) return 'Exceptional'
   if (score >= 65) return 'Strong'
@@ -80,10 +73,7 @@ export function classifyTier(score) {
   return 'Low'
 }
 
-/**
- * Ranks all opposite-gender pool profiles for a given client.
- * Returns sorted array (highest score first), excluding same-gender profiles.
- */
+// Ties in score are broken by confidence rating.
 export function rankProfiles(client, pool) {
   const targetGender = client.personal.gender === 'Male' ? 'Female' : 'Male'
 

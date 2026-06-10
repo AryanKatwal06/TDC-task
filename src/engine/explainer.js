@@ -1,10 +1,7 @@
 import { DIMENSION_LABELS } from './constants.js'
 
-/**
- * Generates 2–4 human-readable strength statements for a match.
- * Identifies the dimensions with the highest weighted contribution and
- * translates them into natural language.
- */
+// The switch cases translate dimension keys into contextual human text,
+// avoiding generic "Height is a match" labels.
 export function generateStrengths(breakdown, client, profile) {
   // Sort dimensions by weighted contribution (score × weight)
   const ranked = Object.entries(breakdown)
@@ -79,11 +76,8 @@ export function generateStrengths(breakdown, client, profile) {
   return statements.filter(Boolean).slice(0, 4)
 }
 
-/**
- * Generates 0–2 honest concern statements for dimensions that scored poorly.
- * Concerns are framed constructively — not as deal-breakers, but as discussion points.
- * Never more than 2 concerns per match (overwhelming the matchmaker defeats the purpose).
- */
+// Capped at 2 concerns because overwhelming matchmakers with concerns defeats the purpose of the tool.
+// Concerns are framed constructively — not as deal-breakers, but as discussion points.
 export function generateConcerns(breakdown, client, profile) {
   const poorDimensions = Object.entries(breakdown)
     .filter(([, { score }]) => score <= 35)
@@ -130,11 +124,7 @@ export function generateConcerns(breakdown, client, profile) {
   })
 }
 
-/**
- * Generates a single headline sentence summarising the match.
- * References the 1–2 strongest dimensions by name.
- * Never mentions numbers or scores.
- */
+// Avoid mentioning numbers in headlines — matchmakers should trust the narrative, not fixate on the score.
 export function generateHeadline(tier, breakdown) {
   const top2 = Object.entries(breakdown)
     .sort(([, a], [, b]) => (b.score * b.weight) - (a.score * a.weight))

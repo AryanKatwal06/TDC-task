@@ -11,7 +11,7 @@ export default function MatchCard({ client, matchResult }) {
   const { profile, score, tier, confidence, alreadySent } = matchResult
   const { personal, professional } = profile
 
-  // Format tier label and colors
+
   const tierColors = {
     Exceptional: 'bg-jade-50 text-jade-700 border-jade-200',
     Strong:      'bg-brand-50 text-brand-700 border-brand-200',
@@ -20,7 +20,7 @@ export default function MatchCard({ client, matchResult }) {
     Low:         'bg-crimson-50 text-crimson-700 border-crimson-200',
   }
 
-  // Format age
+
   const age = personal.dob 
     ? Math.floor((Date.now() - new Date(personal.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
     : '?'
@@ -29,12 +29,12 @@ export default function MatchCard({ client, matchResult }) {
     <>
       <div className={`bg-white rounded-xl border ${isExpanded ? 'border-brand shadow-md' : 'border-surface-200 shadow-sm hover:border-surface-300 hover:shadow-md'} transition-all duration-200 overflow-hidden`}>
         
-        {/* Card Header (Always Visible) */}
+
         <div 
           className="p-5 flex flex-col sm:flex-row gap-5 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          {/* Avatar & Score Column */}
+
           <div className="flex sm:flex-col items-center gap-4 sm:w-24 flex-shrink-0">
             <div className="w-16 h-16 rounded-full bg-surface-100 border border-surface-200 flex items-center justify-center overflow-hidden">
               {personal.photoUrl ? (
@@ -54,7 +54,7 @@ export default function MatchCard({ client, matchResult }) {
             </div>
           </div>
 
-          {/* Profile Details Column */}
+
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
               <div>
@@ -71,7 +71,7 @@ export default function MatchCard({ client, matchResult }) {
                 </div>
               </div>
 
-              {/* Actions */}
+              {/* e.stopPropagation() prevents the card from expanding/collapsing when clicking action buttons. */}
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 {alreadySent ? (
                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-jade rounded-lg border border-green-200 font-medium text-sm">
@@ -95,7 +95,7 @@ export default function MatchCard({ client, matchResult }) {
               </div>
             </div>
 
-            {/* Quick Stats Grid */}
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
               <div className="flex items-center gap-2 text-sm text-surface-600">
                 <MapPin className="w-4 h-4 text-surface-400" />
@@ -117,7 +117,7 @@ export default function MatchCard({ client, matchResult }) {
           </div>
         </div>
 
-        {/* Expanded Content (Engine Explanation) */}
+        {/* sm:pl-[136px] aligns the expanded content with the text column, skipping the avatar column. */}
         {isExpanded && (
           <div className="px-5 pb-5 sm:pl-[136px]">
             <MatchExplanation matchResult={matchResult} />

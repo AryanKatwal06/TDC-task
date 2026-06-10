@@ -1,8 +1,5 @@
-/**
- * Generates a deterministic color from a name string.
- * Same name always produces the same background color.
- * This prevents color flickering when the list re-renders.
- */
+// Deterministic color from name — same name always produces the same color,
+// preventing visual flickering on re-renders.
 function nameToColor(name) {
   const PALETTES = [
     { bg: '#f7ead6', text: '#7d511a' },   // brand warm
@@ -15,6 +12,7 @@ function nameToColor(name) {
     { bg: '#ecfdf5', text: '#065f46' },   // green
   ]
   let hash = 0
+  // Intentionally simple, non-cryptographic hash function.
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
   }

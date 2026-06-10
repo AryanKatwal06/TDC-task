@@ -1,14 +1,6 @@
-/**
- * Generates a personalized, non-templated 3–4 sentence introduction paragraph.
- *
- * Variation strategy:
- * - Opening sentence varies by tier AND by top compatibility dimension
- * - Middle sentences vary by: same city, same profession, shared values, shared religion
- * - Closing sentence varies by match confidence
- *
- * This produces 100+ distinct text combinations, making it practically impossible
- * for two different matches to have identical-feeling intros — even at the same tier.
- */
+// Variation strategy: 100+ distinct text combinations.
+// Repetition is avoided so matchmakers don't develop "banner blindness" from seeing identical copy.
+// The structure is 3 parts: opening (driven by tier), middle (driven by shared traits), closing (driven by confidence).
 export function generateIntroText(client, profile, matchResult) {
   const cn = client.personal.firstName
   const pn = profile.personal.firstName
@@ -124,6 +116,7 @@ function getOpenings(tier, topDim, cn, pn) {
   return byTier[tier] ?? byTier.Good
 }
 
+// Two professions are "same field" if they fall into the same broad category array below.
 function areSameProfession(a, b) {
   const categories = [
     ['engineer', 'developer', 'tech', 'software', 'data', 'product manager'],
