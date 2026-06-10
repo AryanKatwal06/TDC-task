@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { subscribeToAuthChanges } from '@/firebase/auth'
 import useAuthStore from '@/store/authStore'
+import useClientStore from '@/store/clientStore'
 
 // Selector functions defined at module scope, not inline in hook calls.
 // Inline selectors create a new function reference on every render,
@@ -25,6 +26,7 @@ export function useAuthListener() {
           displayName: firebaseUser.displayName ?? firebaseUser.email,
         })
       } else {
+        useClientStore.getState().clearClients()
         clearUser()
       }
     })

@@ -4,14 +4,14 @@ import { create } from 'zustand'
 const useClientStore = create((set, get) => ({
   clients:          [],
   selectedClientId: null,
-  loading:          false,
+  loading:          true,
   error:            null,
 
   setClients: (clients) => set({ clients, loading: false, error: null }),
 
   setLoading: (loading) => set({ loading }),
 
-  setError: (error) => set({ error, loading: false }),
+  setError: (error) => set((state) => ({ error, loading: error !== null ? false : state.loading })),
 
   setSelectedClientId: (id) => set({ selectedClientId: id }),
 
@@ -33,7 +33,7 @@ const useClientStore = create((set, get) => ({
     return clients.find((c) => c.id === selectedClientId) ?? null
   },
 
-  clearClients: () => set({ clients: [], selectedClientId: null, error: null }),
+  clearClients: () => set({ clients: [], selectedClientId: null, error: null, loading: false }),
 }))
 
 export default useClientStore

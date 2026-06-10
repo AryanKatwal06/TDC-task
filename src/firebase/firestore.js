@@ -11,7 +11,8 @@ import {
   orderBy,
   serverTimestamp,
   Timestamp,
-  onSnapshot
+  onSnapshot,
+  writeBatch
 } from 'firebase/firestore'
 import { db } from './config'
 
@@ -106,13 +107,17 @@ export async function fetchPoolProfiles() {
 
 export async function seedClientsForMatchmaker(matchmakerUid, clients) {
   const col = collection(db, 'clients')
-  const writes = clients.map((client) =>
-    addDoc(col, {
+  const batch = writeBatch(db)
+
+  clients.forEach((client) => {
+    const docRef = doc(col)
+    batch.set(docRef, {
       ...client,
       assignedMatchmakerId: matchmakerUid,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     })
-  )
-  await Promise.all(writes)
+  })
+
+  await batch.commit()
 }

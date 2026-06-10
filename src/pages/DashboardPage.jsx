@@ -6,7 +6,8 @@ import Card                     from '@/components/ui/Card'
 import EmptyState               from '@/components/ui/EmptyState'
 import SkeletonRow              from '@/components/ui/SkeletonRow'
 import Button                   from '@/components/ui/Button'
-import { useClientsLoader, useClients, useClientsLoading, useClientsError } from '@/hooks/useClients'
+import Spinner                  from '@/components/ui/Spinner'
+import { useClients, useClientsLoading, useClientsError } from '@/hooks/useClients'
 import useUiStore               from '@/store/uiStore'
 import ClientFilters            from '@/components/features/ClientFilters'
 
@@ -51,7 +52,7 @@ function countNewThisMonth(clients) {
 }
 
 export default function DashboardPage() {
-  const { retry }  = useClientsLoader()
+  const retry      = () => window.location.reload()
   const clients    = useClients()
   const loading    = useClientsLoading()
   const error      = useClientsError()
@@ -88,6 +89,19 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
+      {/* Loading Overlay */}
+      {loading && clients.length === 0 && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <Spinner size="lg" color="#dc9e4a" className="mb-6" />
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', color: '#f5eddc', fontWeight: 500, fontStyle: 'italic', marginBottom: '8px' }}>
+            Hang on a moment...
+          </h2>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', color: 'rgba(245,237,220,0.7)' }}>
+            We are loading your clients' information.
+          </p>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Page header */}
