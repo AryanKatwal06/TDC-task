@@ -3,7 +3,6 @@ import { generateStrengths, generateConcerns, generateHeadline } from './explain
 import { generateIntroText }                           from './introGenerator.js'
 import { classifyMatch }                               from './classifier.js'
 
-// Public API for the matchmaking engine. This is the ONLY file consumers should import from.
 export function getMatchesForClient(client, pool, sentMatchIds = []) {
   const ranked = rankProfiles(client, pool)
 

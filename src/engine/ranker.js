@@ -1,7 +1,6 @@
 import { WEIGHTS, TIERS, DIMENSION_LABELS } from './constants.js'
 import * as scorer from './scorer.js'
 
-// The primary composition point for all dimension scores.
 export function computeMatchScore(client, profile) {
   const gender  = (client.personal.gender ?? 'Male').toUpperCase()
   const weights = WEIGHTS[gender] ?? WEIGHTS.MALE
@@ -48,10 +47,8 @@ function computeConfidence(client, profile, dimensions) {
   const highScores = scores.filter((s) => s >= 70).length
   const lowScores  = scores.filter((s) => s <= 30).length
 
-  // More high scores = more confident. More lows = less confident.
   const signalStrength = (highScores * 8) - (lowScores * 4)
 
-  // Missing data penalty
   const missingFields = [
     client.personal?.dob,
     client.personal?.heightCm,
@@ -73,7 +70,6 @@ export function classifyTier(score) {
   return 'Low'
 }
 
-// Ties in score are broken by confidence rating.
 export function rankProfiles(client, pool) {
   const targetGender = client.personal.gender === 'Male' ? 'Female' : 'Male'
 

@@ -3,7 +3,6 @@ import { DIMENSION_LABELS } from './constants.js'
 // The switch cases translate dimension keys into contextual human text,
 // avoiding generic "Height is a match" labels.
 export function generateStrengths(breakdown, client, profile) {
-  // Sort dimensions by weighted contribution (score × weight)
   const ranked = Object.entries(breakdown)
     .map(([key, { score, weight }]) => ({ key, score, weight, contribution: score * weight }))
     .sort((a, b) => b.contribution - a.contribution)

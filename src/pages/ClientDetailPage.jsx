@@ -52,7 +52,11 @@ export default function ClientDetailPage() {
 
   // Match features
   useMatchesForClient(client)
-  const { matches, computing, error: matchError, visibleCount, showMore } = useMatchStore()
+  const matches = useMatchStore(s => s.matches)
+  const computing = useMatchStore(s => s.computing)
+  const matchError = useMatchStore(s => s.error)
+  const visibleCount = useMatchStore(s => s.visibleCount)
+  const showMore = useMatchStore(s => s.showMore)
 
   // If the client is not in the store (e.g. direct URL navigation), fetch from Firestore
   useEffect(() => {

@@ -1,5 +1,4 @@
 export function classifyMatch(score, confidence, breakdown) {
-  // Returns structured classification
   return {
     tier:        getTierLabel(score),
     confidence:  getConfidenceLabel(confidence),
@@ -22,11 +21,9 @@ function getConfidenceLabel(confidence) {
 }
 
 function getPrimaryCompatibilityAxis(breakdown) {
-  // Find the highest scoring dimension
   const entries = Object.entries(breakdown)
   if (entries.length === 0) return 'Overall Alignment'
 
-  // Sort by weighted contribution to find the strongest area
   entries.sort(([, a], [, b]) => (b.score * b.weight) - (a.score * a.weight))
   const topKey = entries[0][0]
 

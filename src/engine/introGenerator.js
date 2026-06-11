@@ -17,14 +17,11 @@ export function generateIntroText(client, profile, matchResult) {
   const sameReligion = client.personal.religion === profile.personal.religion
   const sameValues   = client.family?.familyValues === profile.family?.familyValues
 
-  // Top dimension by weighted contribution
   const topDimension = getTopDimension(breakdown)
 
-  // ─── Opening (varies by tier + top dimension) ────────────────
   const openings = getOpenings(tier, topDimension, cn, pn)
   const opening  = pick(openings)
 
-  // ─── Middle sentences (personalised context) ─────────────────
   const middles = []
 
   if (sameCity) {
@@ -56,7 +53,6 @@ export function generateIntroText(client, profile, matchResult) {
 
   const middle = pick(middles)
 
-  // ─── Closing (varies by confidence) ──────────────────────────
   const closings = confidence >= 75
     ? [
         `We think this is a pairing well worth pursuing — happy to arrange an introduction at your convenience.`,
@@ -78,8 +74,6 @@ export function generateIntroText(client, profile, matchResult) {
 
   return `${opening} ${middle} ${closing}`
 }
-
-// ─── Helpers ──────────────────────────────────────────────────
 
 function getTopDimension(breakdown) {
   return Object.entries(breakdown)
@@ -116,7 +110,6 @@ function getOpenings(tier, topDim, cn, pn) {
   return byTier[tier] ?? byTier.Good
 }
 
-// Two professions are "same field" if they fall into the same broad category array below.
 function areSameProfession(a, b) {
   const categories = [
     ['engineer', 'developer', 'tech', 'software', 'data', 'product manager'],

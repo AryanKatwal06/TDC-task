@@ -82,7 +82,6 @@ export const EDUCATION_TIERS = {
   'MDI Gurgaon': 2, 'IIT Hyderabad': 2, 'IIT Gandhinagar': 2,
 
   // Tier 3 — State-level good colleges (default)
-  // Anything not in tier 1 or 2 is tier 3
 }
 
 export function getEducationTier(college) {
