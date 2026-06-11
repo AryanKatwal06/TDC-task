@@ -12,12 +12,13 @@ export function scoreAge(client, profile) {
   const pMin = client.preferences?.partnerAgeMin
   const pMax = client.preferences?.partnerAgeMax
 
+  // If profile falls outside stated preference range, apply hard penalty
   if (pMin && profileAge < pMin) return Math.max(0, 30 - (pMin - profileAge) * 5)
   if (pMax && profileAge > pMax) return Math.max(0, 30 - (profileAge - pMax) * 5)
 
   const diff = client.personal.gender === 'Male'
-    ? clientAge - profileAge
-    : profileAge - clientAge
+    ? clientAge - profileAge   // positive = profile is younger
+    : profileAge - clientAge   // positive = profile is older
 
   if (client.personal.gender === 'Male') {
     // Ideal: profile 2–5 years younger
@@ -34,7 +35,7 @@ export function scoreAge(client, profile) {
     if (diff >= 1 && diff < 3)   return 80
     if (diff > 8 && diff <= 12)  return 65
     if (diff > 12)               return Math.max(0, 40 - (diff - 12) * 5)
-    if (diff === 0)              return 50
+    if (diff === 0)              return 50  // same age
     if (diff < 0 && diff >= -2)  return 30  // profile slightly younger
     if (diff < -2)               return Math.max(0, 15 + diff * 2)
     return 20
@@ -52,7 +53,7 @@ export function scoreHeight(client, profile) {
   if (client.personal.gender === 'Male') {
     // Profile (female) should be shorter than client
     if (minPref && ph < minPref) return Math.max(0, 20 - (minPref - ph) * 2)
-    const diff = ch - ph
+    const diff = ch - ph  // positive = profile is shorter
     if (diff >= 10 && diff <= 25) return 100
     if (diff >= 5  && diff < 10)  return 85
     if (diff >= 0  && diff < 5)   return 70
@@ -62,7 +63,7 @@ export function scoreHeight(client, profile) {
   } else {
     // Profile (male) should be taller than client
     if (minPref && ph < minPref) return Math.max(0, 20 - (minPref - ph) * 2)
-    const diff = ph - ch
+    const diff = ph - ch  // positive = profile is taller
     if (diff >= 8 && diff <= 20)  return 100
     if (diff >= 4 && diff < 8)    return 85
     if (diff >= 0 && diff < 4)    return 65
@@ -85,7 +86,7 @@ export function scoreIncome(client, profile) {
 
   const cb = getIncomeBand(ci)
   const pb = getIncomeBand(pi)
-  const bandDiff = cb - pb
+  const bandDiff = cb - pb  // positive = client earns more
 
   if (client.personal.gender === 'Male') {
     if (bandDiff === 1)  return 100  // profile earns one band less — ideal
@@ -118,7 +119,10 @@ export function scoreEducation(client, profile) {
   else if (tierDiff === 1) base = 65
   else base = 25
 
-  // Bonus for same general field
+  return Math.min(100, base)
+}
+
+export function scoreProfession(client, profile) {
   const cd = (client.professional?.degree ?? '').toLowerCase()
   const pd = (profile.professional?.degree ?? '').toLowerCase()
   const sameField =
@@ -134,7 +138,7 @@ export function scoreEducation(client, profile) {
     (cd.includes('ca') || cd.includes('commerce')) &&
     (pd.includes('ca') || pd.includes('commerce'))
 
-  return Math.min(100, base + (sameField ? 12 : 0))
+  return sameField ? 100 : 50
 }
 
 // The Manglik penalty is applied on top of the base religion compatibility.
@@ -229,6 +233,7 @@ export function scoreRelocation(client, profile) {
   }
   let base = compatMap[`${co}-${po}`] ?? 60
 
+  // Same city bonus
   if (client.personal?.city === profile.personal?.city) base = Math.min(100, base + 12)
 
   // NRI penalty if one is NRI and neither wants to relocate
@@ -275,6 +280,7 @@ export function scoreFamilyValues(client, profile) {
   else if (diff === 1) base = 65
   else base = 30
 
+  // Family income bracket proximity
   const ci = getIncomeBand(client.family?.familyIncomeLakh  ?? 0)
   const pi = getIncomeBand(profile.family?.familyIncomeLakh ?? 0)
   const incomeDiff = Math.abs(ci - pi)
@@ -282,6 +288,8 @@ export function scoreFamilyValues(client, profile) {
 
   return Math.min(100, base + incomeBonus)
 }
+
+// ─── Utility ──────────────────────────────────────────────────
 
 function computeAge(dob) {
   if (!dob) return null

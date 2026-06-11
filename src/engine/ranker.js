@@ -1,21 +1,19 @@
 import { WEIGHTS, TIERS, DIMENSION_LABELS } from './constants.js'
 import * as scorer from './scorer.js'
 
+// The primary composition point for all dimension scores.
 export function computeMatchScore(client, profile) {
   const gender  = (client.personal.gender ?? 'Male').toUpperCase()
   const weights = WEIGHTS[gender] ?? WEIGHTS.MALE
 
   const dimensions = {
-    age:          scorer.scoreAge(client, profile),
-    height:       scorer.scoreHeight(client, profile),
-    income:       scorer.scoreIncome(client, profile),
-    education:    scorer.scoreEducation(client, profile),
-    religion:     scorer.scoreReligion(client, profile),
-    values:       scorer.scoreValues(client, profile),
-    lifestyle:    scorer.scoreLifestyle(client, profile),
-    relocation:   scorer.scoreRelocation(client, profile),
     kids:         scorer.scoreKids(client, profile),
+    relocation:   scorer.scoreRelocation(client, profile),
+    education:    scorer.scoreEducation(client, profile),
+    lifestyle:    scorer.scoreLifestyle(client, profile),
     familyValues: scorer.scoreFamilyValues(client, profile),
+    profession:   scorer.scoreProfession(client, profile),
+    income:       scorer.scoreIncome(client, profile),
   }
 
   const weightedTotal = Object.entries(dimensions).reduce((sum, [key, score]) => {
@@ -47,8 +45,10 @@ function computeConfidence(client, profile, dimensions) {
   const highScores = scores.filter((s) => s >= 70).length
   const lowScores  = scores.filter((s) => s <= 30).length
 
+  // More high scores = more confident. More lows = less confident.
   const signalStrength = (highScores * 8) - (lowScores * 4)
 
+  // Missing data penalty
   const missingFields = [
     client.personal?.dob,
     client.personal?.heightCm,
@@ -63,13 +63,14 @@ function computeConfidence(client, profile, dimensions) {
 
 
 export function classifyTier(score) {
-  if (score >= 80) return 'Exceptional'
-  if (score >= 65) return 'Strong'
-  if (score >= 50) return 'Good'
-  if (score >= 35) return 'Fair'
-  return 'Low'
+  if (score >= 95) return 'Elite'
+  if (score >= 85) return 'Excellent'
+  if (score >= 75) return 'Strong'
+  if (score >= 60) return 'Moderate'
+  return 'Weak'
 }
 
+// Ties in score are broken by confidence rating.
 export function rankProfiles(client, pool) {
   const targetGender = client.personal.gender === 'Male' ? 'Female' : 'Male'
 

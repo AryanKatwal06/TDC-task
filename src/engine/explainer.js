@@ -3,6 +3,7 @@ import { DIMENSION_LABELS } from './constants.js'
 // The switch cases translate dimension keys into contextual human text,
 // avoiding generic "Height is a match" labels.
 export function generateStrengths(breakdown, client, profile) {
+  // Sort dimensions by weighted contribution (score × weight)
   const ranked = Object.entries(breakdown)
     .map(([key, { score, weight }]) => ({ key, score, weight, contribution: score * weight }))
     .sort((a, b) => b.contribution - a.contribution)
@@ -131,14 +132,14 @@ export function generateHeadline(tier, breakdown) {
     .map(([key]) => DIMENSION_LABELS[key]?.toLowerCase() ?? key)
 
   const tierPhrases = {
-    Exceptional: ['Outstanding alignment on', 'Remarkable compatibility across', 'Exceptional match driven by'],
-    Strong:      ['Strong alignment on', 'Well-matched on', 'Solid compatibility across'],
-    Good:        ['Good foundational match in', 'Meaningful compatibility on', 'Promising potential with shared'],
-    Fair:        ['Some common ground on', 'Partial compatibility — especially in', 'Worth exploring, particularly for'],
-    Low:         ['Limited alignment, mainly in', 'Significant differences, with some shared', 'Challenging match — strongest area is'],
+    Elite:       ['Outstanding alignment on', 'Remarkable compatibility across', 'Exceptional match driven by'],
+    Excellent:   ['Strong alignment on', 'Highly compatible on', 'Excellent match driven by'],
+    Strong:      ['Solid alignment on', 'Well-matched on', 'Good compatibility across'],
+    Moderate:    ['Some common ground on', 'Partial compatibility — especially in', 'Worth exploring, particularly for'],
+    Weak:        ['Limited alignment, mainly in', 'Significant differences, with some shared', 'Challenging match — strongest area is'],
   }
 
-  const phrases = tierPhrases[tier] ?? tierPhrases.Good
+  const phrases = tierPhrases[tier] ?? tierPhrases.Moderate
   const phrase  = phrases[Math.floor(Math.random() * phrases.length)]
 
   if (top2.length >= 2) return `${phrase} ${top2[0]} and ${top2[1]}`

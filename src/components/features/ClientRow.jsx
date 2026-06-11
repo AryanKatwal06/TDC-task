@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import Avatar from '@/components/ui/Avatar'
 import Badge, { getVariantForStatus } from '@/components/ui/Badge'
+import StaleProfileBadge from './StaleProfileBadge'
 
 /**
  * Computes a person's age in whole years from a date-of-birth string.
@@ -55,9 +56,12 @@ export default function ClientRow({ client, index = 0 }) {
 
       {/* Name + City */}
       <div className="flex-1 min-w-0">
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, color: '#f5eddc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {fullName}
-        </p>
+        <div className="flex items-center gap-2">
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, color: '#f5eddc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {fullName}
+          </p>
+          <StaleProfileBadge client={client} />
+        </div>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(220,158,74,0.8)', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {client.personal.city}{client.personal.nriStatus ? ' (NRI)' : ''}
         </p>

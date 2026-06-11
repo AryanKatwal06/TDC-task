@@ -1,30 +1,67 @@
-import React from 'react'
-import { CheckCircle2, AlertTriangle, Info } from 'lucide-react'
+import React, { useState } from 'react'
+import { CheckCircle2, AlertTriangle, Info, Sparkles, Loader2 } from 'lucide-react'
+import { explainMatch } from '@/lib/ai/matchExplanation'
 
-export default function MatchExplanation({ matchResult }) {
+export default function MatchExplanation({ client, matchResult }) {
   const { strengths, concerns, headline, breakdown } = matchResult
+
+  const [aiExplanation, setAiExplanation] = useState('')
+  const [loadingAi, setLoadingAi] = useState(false)
 
   // We sort by weight, not raw score, so the matchmaker sees the most impactful dimensions at the top of the chart.
   const sortedDimensions = Object.entries(breakdown)
     .sort(([, a], [, b]) => b.weight - a.weight)
 
-  return (
-    <div className="mt-4 border-t border-surface-200 pt-4 animate-in fade-in slide-in-from-top-4 duration-300">
-      
+  async function handleAskAi() {
+    if (!client) return
+    setLoadingAi(true)
+    try {
+      const explanationResult = await explainMatch(client, matchResult.profile, matchResult.score, breakdown)
+      setAiExplanation(explanationResult)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoadingAi(false)
+    }
+  }
 
-      <div className="flex items-start gap-3 mb-6 bg-brand-50 p-4 rounded-lg border border-brand-100">
-        <Info className="w-5 h-5 text-brand flex-shrink-0 mt-0.5" />
-        <p className="text-sm font-medium text-brand-900 leading-relaxed">
-          {headline}
-        </p>
+  return (
+    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+      
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 bg-brand-50 p-4 rounded-lg border border-brand-100">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <Info className="w-5 h-5 text-brand flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            {aiExplanation ? (
+              <p className="text-sm font-medium text-brand-900 leading-relaxed whitespace-pre-wrap">
+                {aiExplanation}
+              </p>
+            ) : (
+              <p className="text-sm font-medium text-brand-900 leading-relaxed">
+                {headline}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        {!aiExplanation && (
+          <button 
+            onClick={handleAskAi}
+            disabled={loadingAi}
+            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-500 text-white hover:bg-brand-600 text-xs font-semibold rounded-md transition-colors disabled:opacity-50 flex-shrink-0 shadow-sm w-full md:w-auto"
+          >
+            {loadingAi ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            Ask AI to Analyze
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="flex flex-col gap-8">
         
 
         <div className="space-y-6">
           <div>
-            <h4 className="text-xs font-bold text-surface-400 uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-3">
               Key Strengths
             </h4>
             <ul className="space-y-3">
@@ -56,7 +93,7 @@ export default function MatchExplanation({ matchResult }) {
 
 
         <div>
-          <h4 className="text-xs font-bold text-surface-400 uppercase tracking-wider mb-3">
+          <h4 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-3">
             Compatibility Breakdown
           </h4>
           <div className="space-y-3 bg-surface-50 p-4 rounded-lg border border-surface-200">

@@ -10,10 +10,14 @@ import Spinner                  from '@/components/ui/Spinner'
 import { useClients, useClientsLoading, useClientsError } from '@/hooks/useClients'
 import useUiStore               from '@/store/uiStore'
 import ClientFilters            from '@/components/features/ClientFilters'
+import CommandCenter            from '@/components/features/CommandCenter'
+import MatchDiscoveryFeed       from '@/components/features/MatchDiscoveryFeed'
 
 // ─── Store selectors ───────────────────────────────────────────
 const selectSearch       = (s) => s.searchQuery
 const selectFilter       = (s) => s.statusFilter
+const selectAiFilters    = (s) => s.aiFilters
+const selectAdvanced     = (s) => s.advancedFilters
 
 // ─── Stats strip ───────────────────────────────────────────────
 function StatCard({ label, value, icon }) {
@@ -41,6 +45,12 @@ function StatCard({ label, value, icon }) {
 }
 
 
+function computeAge(dob) {
+  if (!dob) return null
+  const diff = Date.now() - new Date(dob).getTime()
+  return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000))
+}
+
 function countNewThisMonth(clients) {
   const now   = new Date()
   const year  = now.getFullYear()
@@ -59,6 +69,8 @@ export default function DashboardPage() {
 
   const searchQuery = useUiStore(selectSearch)
   const statusFilter = useUiStore(selectFilter)
+  const aiFilters = useUiStore(selectAiFilters)
+  const advancedFilters = useUiStore(selectAdvanced)
 
   // Client-side filtering — no Firestore calls on search/filter
   const filtered = useMemo(() => {
@@ -68,16 +80,70 @@ export default function DashboardPage() {
       const company   = (c.professional.company ?? '').toLowerCase()
       const query     = searchQuery.toLowerCase()
 
+      // 1. Text Search
+      const hasAiFilters = aiFilters && Object.keys(aiFilters).length > 0
       const matchesSearch = !query ||
+        hasAiFilters ||
         fullName.includes(query) ||
         city.includes(query) ||
         company.includes(query)
 
+      // 2. Status Filter
       const matchesFilter = statusFilter === 'All' || c.statusTag === statusFilter
 
-      return matchesSearch && matchesFilter
+      // 3. AI Filters
+      let matchesAi = true
+      if (aiFilters) {
+        if (aiFilters.gender && c.personal.gender?.toLowerCase() !== aiFilters.gender.toLowerCase()) matchesAi = false
+        if (aiFilters.city && !city.includes(aiFilters.city.toLowerCase())) matchesAi = false
+        if (aiFilters.religion && c.personal.religion?.toLowerCase() !== aiFilters.religion.toLowerCase()) matchesAi = false
+        
+        const age = computeAge(c.personal.dob)
+        if (age !== null) {
+          if (aiFilters.minAge && age < aiFilters.minAge) matchesAi = false
+          if (aiFilters.maxAge && age > aiFilters.maxAge) matchesAi = false
+        }
+        
+        if (aiFilters.wantKids) {
+          const prefKids = c.preferences.wantKids?.toLowerCase() || ''
+          const targetKids = aiFilters.wantKids.toLowerCase()
+          if (!prefKids.includes(targetKids) && !targetKids.includes(prefKids)) {
+            matchesAi = false
+          }
+        }
+      }
+
+      // 4. Advanced Filters
+      let matchesAdv = true
+      if (advancedFilters) {
+        if (advancedFilters.city && !city.includes(advancedFilters.city.toLowerCase())) matchesAdv = false
+        if (advancedFilters.religion && c.personal.religion?.toLowerCase() !== advancedFilters.religion.toLowerCase()) matchesAdv = false
+        if (advancedFilters.caste && c.personal.caste?.toLowerCase() !== advancedFilters.caste.toLowerCase()) matchesAdv = false
+        if (advancedFilters.education && !c.professional.degree?.toLowerCase().includes(advancedFilters.education.toLowerCase())) matchesAdv = false
+        if (advancedFilters.minIncome && (c.professional.annualIncomeLakh || 0) < advancedFilters.minIncome) matchesAdv = false
+        
+        if (advancedFilters.kids) {
+          const prefKids = c.preferences.wantKids?.toLowerCase() || ''
+          const targetKids = advancedFilters.kids.toLowerCase()
+          if (!prefKids.includes(targetKids) && !targetKids.includes(prefKids)) matchesAdv = false
+        }
+        
+        if (advancedFilters.relocate) {
+          const prefRelocate = c.preferences.openToRelocate?.toLowerCase() || ''
+          const targetRelocate = advancedFilters.relocate.toLowerCase()
+          if (!prefRelocate.includes(targetRelocate) && !targetRelocate.includes(prefRelocate)) matchesAdv = false
+        }
+        
+        const age = computeAge(c.personal.dob)
+        if (age !== null) {
+          if (advancedFilters.minAge && age < advancedFilters.minAge) matchesAdv = false
+          if (advancedFilters.maxAge && age > advancedFilters.maxAge) matchesAdv = false
+        }
+      }
+
+      return matchesSearch && matchesFilter && matchesAi && matchesAdv
     })
-  }, [clients, searchQuery, statusFilter])
+  }, [clients, searchQuery, statusFilter, aiFilters, advancedFilters])
 
   // Stats computed from the full client list, not the filtered view
   const stats = useMemo(() => ({
@@ -115,6 +181,16 @@ export default function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* AI Command Center */}
+        {!loading && !error && clients.length > 0 && (
+          <CommandCenter clients={clients} userName="Matchmaker" />
+        )}
+
+        {/* AI Match Discovery Feed */}
+        {!loading && !error && clients.length > 0 && (
+          <MatchDiscoveryFeed clients={clients} />
+        )}
 
         {/* Stats strip */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

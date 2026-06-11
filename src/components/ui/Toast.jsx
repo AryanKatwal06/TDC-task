@@ -16,8 +16,7 @@ export const useToastStore = create((set) => ({
 }))
 
 export function ToastContainer() {
-  const toasts = useToastStore(s => s.toasts)
-  const removeToast = useToastStore(s => s.removeToast)
+  const { toasts, removeToast } = useToastStore()
 
   return (
     // pointer-events-none on container + auto on items allows clicks to pass through empty space.

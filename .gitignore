@@ -1,6 +1,10 @@
 # Built files — Vite outputs here, never commit
 dist/
 .vite/
+build/
+.next/
+out/
+.turbo/
 
 # Node modules — always regenerated from package.json
 node_modules/

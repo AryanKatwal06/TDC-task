@@ -3,6 +3,9 @@ import { MapPin, Briefcase, GraduationCap, Ruler, ChevronDown, ChevronUp, Check 
 import ScoreRing from '@/components/ui/ScoreRing'
 import MatchExplanation from './MatchExplanation'
 import SendMatchModal from './SendMatchModal'
+import HiddenGemBadge from './HiddenGemBadge'
+import AcceptancePredictor from './AcceptancePredictor'
+import WhyNotMatched from './WhyNotMatched'
 
 export default function MatchCard({ client, matchResult }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -31,9 +34,10 @@ export default function MatchCard({ client, matchResult }) {
         
 
         <div 
-          className="p-5 flex flex-col sm:flex-row gap-5 cursor-pointer"
+          className="p-5 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
+          <div className="flex flex-col sm:flex-row gap-5">
 
           <div className="flex sm:flex-col items-center gap-4 sm:w-24 flex-shrink-0">
             <div className="w-16 h-16 rounded-full bg-surface-100 border border-surface-200 flex items-center justify-center overflow-hidden">
@@ -65,6 +69,7 @@ export default function MatchCard({ client, matchResult }) {
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${tierColors[tier]}`}>
                     {tier} Match
                   </span>
+                  <HiddenGemBadge score={score} breakdown={matchResult.breakdown} />
                   <span className="text-sm font-medium text-surface-600">
                     {age} yrs • {personal.religion}
                   </span>
@@ -96,31 +101,38 @@ export default function MatchCard({ client, matchResult }) {
             </div>
 
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-              <div className="flex items-center gap-2 text-sm text-surface-600">
-                <MapPin className="w-4 h-4 text-surface-400" />
+            <div className="flex flex-col gap-y-2 mt-4">
+              <div className="flex items-center gap-2 text-sm text-surface-600 truncate max-w-full">
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-surface-400" />
                 <span className="truncate">{personal.city}, {personal.country}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-surface-600">
-                <Briefcase className="w-4 h-4 text-surface-400" />
+              <div className="flex items-center gap-2 text-sm text-surface-600 truncate max-w-full">
+                <Briefcase className="w-3.5 h-3.5 flex-shrink-0 text-surface-400" />
                 <span className="truncate">{professional?.designation || 'Professional'}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-surface-600">
-                <GraduationCap className="w-4 h-4 text-surface-400" />
+              <div className="flex items-center gap-2 text-sm text-surface-600 truncate max-w-full">
+                <GraduationCap className="w-3.5 h-3.5 flex-shrink-0 text-surface-400" />
                 <span className="truncate">{professional?.degree || 'Degree'}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-surface-600">
-                <Ruler className="w-4 h-4 text-surface-400" />
+              <div className="flex items-center gap-2 text-sm text-surface-600 whitespace-nowrap">
+                <Ruler className="w-3.5 h-3.5 flex-shrink-0 text-surface-400" />
                 <span>{personal.heightCm} cm</span>
               </div>
             </div>
           </div>
+          </div>
+          
+          <div className="mt-5 flex justify-center w-full">
+            <AcceptancePredictor client={client} profile={profile} score={score} />
+          </div>
         </div>
 
-        {/* sm:pl-[136px] aligns the expanded content with the text column, skipping the avatar column. */}
         {isExpanded && (
-          <div className="px-5 pb-5 sm:pl-[136px]">
-            <MatchExplanation matchResult={matchResult} />
+          <div className="px-5 pb-5 pt-2 border-t border-surface-100 mt-2">
+            <MatchExplanation client={client} matchResult={matchResult} />
+            {score < 60 && matchResult.whyNotMatched && (
+              <WhyNotMatched reasons={matchResult.whyNotMatched} />
+            )}
           </div>
         )}
       </div>

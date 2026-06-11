@@ -6,6 +6,7 @@ import LoginPage           from '@/pages/LoginPage'
 import RegisterPage        from '@/pages/RegisterPage'
 import DashboardPage       from '@/pages/DashboardPage'
 import ClientDetailPage    from '@/pages/ClientDetailPage'
+import AnalyticsPage       from '@/pages/AnalyticsPage'
 import { ToastContainer }  from '@/components/ui/Toast'
 import ScrollToTop         from '@/components/ScrollToTop'
 
@@ -34,6 +35,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <ClientDetailPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
             </ProtectedRoute>
           }
         />

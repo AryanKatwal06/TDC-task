@@ -13,6 +13,14 @@ import { fetchClientById, updateClientStatus } from '@/firebase/firestore'
 import { useMatchesForClient } from '@/hooks/useMatches'
 import useMatchStore from '@/store/matchStore'
 import MatchCard from '@/components/features/MatchCard'
+import ProfileCompleteness from '@/components/features/ProfileCompleteness'
+import AIInsightsPanel from '@/components/features/AIInsightsPanel'
+import NextBestAction from '@/components/features/NextBestAction'
+import JourneyPipeline from '@/components/features/JourneyPipeline'
+import ConversationPrep from '@/components/features/ConversationPrep'
+import PreferenceConflict from '@/components/features/PreferenceConflict'
+import StaleProfileBadge from '@/components/features/StaleProfileBadge'
+import { getProfileCompleteness } from '@/services/matching/profileCompleteness'
 
 const selectClients      = (s) => s.clients
 const selectSetSelected  = (s) => s.setSelectedClientId
@@ -52,11 +60,7 @@ export default function ClientDetailPage() {
 
   // Match features
   useMatchesForClient(client)
-  const matches = useMatchStore(s => s.matches)
-  const computing = useMatchStore(s => s.computing)
-  const matchError = useMatchStore(s => s.error)
-  const visibleCount = useMatchStore(s => s.visibleCount)
-  const showMore = useMatchStore(s => s.showMore)
+  const { matches, computing, error: matchError, visibleCount, showMore } = useMatchStore()
 
   // If the client is not in the store (e.g. direct URL navigation), fetch from Firestore
   useEffect(() => {
@@ -116,6 +120,7 @@ export default function ClientDetailPage() {
                 <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.625rem', color: '#f5eddc', fontWeight: 500, lineHeight: 1.2 }}>
                   {fullName}
                 </h1>
+                <StaleProfileBadge client={client} />
                 <select 
                   value={client.statusTag}
                   onChange={(e) => {
@@ -145,12 +150,22 @@ export default function ClientDetailPage() {
 
           {/* LEFT — Biodata */}
           <div className="space-y-6">
+            
+            <JourneyPipeline client={client} />
+            <PreferenceConflict client={client} availableMatches={matches} />
 
             <Card padding="lg">
-              <BiodataSection
-                title="Personal Information"
-                icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc9e4a" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-                fields={[
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-display text-[15px] font-medium text-surface-50 flex items-center gap-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc9e4a" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Personal Information
+                </h3>
+              </div>
+              <AIInsightsPanel profile={client} />
+              <div className="mt-6">
+                <BiodataSection
+                  title=""
+                  fields={[
                   { label: 'Gender',           value: client.personal.gender },
                   { label: 'Date of Birth',     value: `${formatDate(client.personal.dob)} (Age ${age})` },
                   { label: 'Marital Status',    value: client.personal.maritalStatus },
@@ -163,6 +178,7 @@ export default function ClientDetailPage() {
                   { label: 'Complexion',        value: client.personal.complexion },
                 ]}
               />
+              </div>
             </Card>
 
             <Card padding="lg">
@@ -246,7 +262,12 @@ export default function ClientDetailPage() {
 
           {/* RIGHT — Matches */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-2">
+            
+            <ProfileCompleteness completeness={getProfileCompleteness(client)} />
+            <NextBestAction client={client} matches={matches} />
+            <ConversationPrep client={client} />
+
+            <div className="flex items-center justify-between mb-2 mt-8">
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '15px', color: '#f5eddc', fontWeight: 500 }}>
                 Suggested Matches ({matches.length})
               </h3>

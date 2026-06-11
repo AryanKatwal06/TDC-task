@@ -229,6 +229,10 @@ VITE_FIREBASE_PROJECT_ID=your-project-id
 VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=1234567890
 VITE_FIREBASE_APP_ID=1:123456:web:abcdef
+
+# OpenRouter AI Configuration (Required for AI Features)
+VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
+VITE_OPENROUTER_MODEL=optional_preferred_model_name
 ```
 
 *Note: In the context of a Firebase frontend application, these keys are intended to be public. They identify your project to Google's servers. The actual security of your data is entirely dependent on your `firestore.rules`, NOT the secrecy of these keys.*

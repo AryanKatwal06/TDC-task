@@ -1,4 +1,5 @@
 export function classifyMatch(score, confidence, breakdown) {
+  // Returns structured classification
   return {
     tier:        getTierLabel(score),
     confidence:  getConfidenceLabel(confidence),
@@ -7,11 +8,11 @@ export function classifyMatch(score, confidence, breakdown) {
 }
 
 function getTierLabel(score) {
-  if (score >= 80) return 'Exceptional'
-  if (score >= 65) return 'Strong'
-  if (score >= 50) return 'Good'
-  if (score >= 35) return 'Fair'
-  return 'Low'
+  if (score >= 95) return 'Elite'
+  if (score >= 85) return 'Excellent'
+  if (score >= 75) return 'Strong'
+  if (score >= 60) return 'Moderate'
+  return 'Weak'
 }
 
 function getConfidenceLabel(confidence) {
@@ -21,23 +22,22 @@ function getConfidenceLabel(confidence) {
 }
 
 function getPrimaryCompatibilityAxis(breakdown) {
+  // Find the highest scoring dimension
   const entries = Object.entries(breakdown)
   if (entries.length === 0) return 'Overall Alignment'
 
+  // Sort by weighted contribution to find the strongest area
   entries.sort(([, a], [, b]) => (b.score * b.weight) - (a.score * a.weight))
   const topKey = entries[0][0]
 
   const axisMap = {
-    age: 'Age Compatibility',
-    height: 'Physical Alignment',
-    income: 'Professional Alignment',
-    education: 'Educational Background',
-    religion: 'Cultural Compatibility',
-    values: 'Values & Lifestyle',
-    lifestyle: 'Values & Lifestyle',
-    relocation: 'Location Flexibility',
     kids: 'Family Outlook',
+    relocation: 'Location Flexibility',
+    education: 'Educational Background',
+    lifestyle: 'Values & Lifestyle',
     familyValues: 'Family Background',
+    profession: 'Professional Alignment',
+    income: 'Financial Alignment',
   }
 
   return axisMap[topKey] ?? 'Overall Alignment'

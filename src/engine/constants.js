@@ -9,38 +9,32 @@
 // more often than male profiles do. The weights model real behavior.
 export const WEIGHTS = {
   MALE: {
-    age:          0.15,
-    height:       0.08,
+    kids:         0.20,
+    relocation:   0.15,
+    education:    0.15,
+    lifestyle:    0.15,
+    familyValues: 0.15,
+    profession:   0.10,
     income:       0.10,
-    education:    0.10,
-    religion:     0.15,
-    values:       0.12,
-    lifestyle:    0.08,
-    relocation:   0.08,
-    kids:         0.08,
-    familyValues: 0.06,
   },
   FEMALE: {
-    age:          0.10,
-    height:       0.05,
-    income:       0.16,
-    education:    0.14,
-    religion:     0.12,
-    values:       0.14,
-    lifestyle:    0.07,
-    relocation:   0.10,
-    kids:         0.08,
-    familyValues: 0.04,
+    kids:         0.20,
+    relocation:   0.15,
+    education:    0.15,
+    lifestyle:    0.15,
+    familyValues: 0.15,
+    profession:   0.10,
+    income:       0.10,
   },
 }
 
 // Tiers translate raw 0-100 scores into human-meaningful match categories.
 export const TIERS = {
-  EXCEPTIONAL: { min: 80, label: 'Exceptional Match', colorClass: 'jade'    },
-  STRONG:      { min: 65, label: 'Strong Match',       colorClass: 'brand'   },
-  GOOD:        { min: 50, label: 'Good Match',         colorClass: 'brand'   },
-  FAIR:        { min: 35, label: 'Fair Match',         colorClass: 'amber'   },
-  LOW:         { min: 0,  label: 'Low Compatibility',  colorClass: 'crimson' },
+  ELITE:       { min: 95, label: 'Elite Match',        colorClass: 'jade'    },
+  EXCELLENT:   { min: 85, label: 'Excellent Match',    colorClass: 'brand'   },
+  STRONG:      { min: 75, label: 'Strong Match',       colorClass: 'brand'   },
+  MODERATE:    { min: 60, label: 'Moderate Match',     colorClass: 'amber'   },
+  WEAK:        { min: 0,  label: 'Weak Match',         colorClass: 'crimson' },
 }
 
 // This matrix reflects observed patterns on Indian matrimonial platforms, not a values judgment.
@@ -82,6 +76,7 @@ export const EDUCATION_TIERS = {
   'MDI Gurgaon': 2, 'IIT Hyderabad': 2, 'IIT Gandhinagar': 2,
 
   // Tier 3 — State-level good colleges (default)
+  // Anything not in tier 1 or 2 is tier 3
 }
 
 export function getEducationTier(college) {
@@ -111,14 +106,11 @@ export function getIncomeBand(lakh) {
 
 
 export const DIMENSION_LABELS = {
-  age:          'Age Compatibility',
-  height:       'Height Preference',
-  income:       'Financial Alignment',
-  education:    'Educational Background',
-  religion:     'Religion & Culture',
-  values:       'Lifestyle Values',
-  lifestyle:    'Daily Lifestyle',
-  relocation:   'Location Flexibility',
-  kids:         'Family Planning',
-  familyValues: 'Family Background',
+  kids:         'Children Preference',
+  relocation:   'Location Compatibility',
+  education:    'Education Compatibility',
+  lifestyle:    'Lifestyle Compatibility',
+  familyValues: 'Family Compatibility',
+  profession:   'Profession Compatibility',
+  income:       'Income Compatibility',
 }
